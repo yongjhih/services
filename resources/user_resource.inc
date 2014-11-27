@@ -250,7 +250,10 @@ function _user_resource_definition() {
  * @see user_load()
  */
 function _user_resource_retrieve($uid) {
-  $account = user_load($uid);
+  $account = user_load_by_mail($uid);
+  if (!$account || empty($account)) {
+    $account = user_load($uid);
+  }
   if (empty($account)) {
     return services_error(t('There is no user with ID @uid.', array('@uid' => $uid)), 404);
   }
@@ -791,7 +794,10 @@ function _user_resource_access($op = 'view', $args = array()) {
 
   // Check if the user exists if appropriate.
   if ($op != 'create' && $op != 'register' ) {
-    $account = user_load($args[0]);
+    $account = user_load_by_mail($args[0]);
+    if (!$account) {
+      $account = user_load($args[0]);
+    }
     if (!$account) {
       return services_error(t('There is no user with ID @uid.', array('@uid' => $args[0])), 406);
     }
