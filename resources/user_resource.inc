@@ -252,6 +252,14 @@ function _user_resource_definition() {
 function _user_resource_retrieve($uid) {
   $account = user_load_by_mail($uid);
   if (!$account || empty($account)) {
+    $data = array(
+        'provider' => 'Facebook',
+        'identifier' => $uid
+    );
+    $identify = _hybridauth_identity_load($data);
+    $account = user_load($identify['uid']);
+  }
+  if (!$account || empty($account)) {
     $account = user_load($uid);
   }
   if (empty($account)) {
@@ -795,6 +803,14 @@ function _user_resource_access($op = 'view', $args = array()) {
   // Check if the user exists if appropriate.
   if ($op != 'create' && $op != 'register' ) {
     $account = user_load_by_mail($args[0]);
+    if (!$account) {
+        $data = array(
+            'provider' => 'Facebook',
+            'identifier' => $args[0]
+        );
+        $identify = _hybridauth_identity_load($data);
+        $account = user_load($identify['uid']);
+    }
     if (!$account) {
       $account = user_load($args[0]);
     }
